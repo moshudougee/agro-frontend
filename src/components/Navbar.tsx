@@ -1,15 +1,17 @@
 import { LuLogOut } from "react-icons/lu"
 import { useAuthStore } from "../store/auth"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { useOrderStore } from "../store/orderCart"
 
 const Navbar = () => {
     const { user, isAuthenticated, logout } = useAuthStore()
     const { clearOrder } = useOrderStore()
+    const navigate = useNavigate()
 
     const handleLogout = () => {
         clearOrder()
         logout()
+        navigate('/login')
     }
   return (
     <div className="nav">

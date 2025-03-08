@@ -1,12 +1,14 @@
 import { LuLogOut } from "react-icons/lu"
 import { useAuthStore } from "../../store/auth"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 
 const AdminNav = () => {
     const { isAuthenticated, logout } = useAuthStore()
+    const navigate = useNavigate()
 
     const handleLogout = () => {
         logout()
+        navigate('/login')
     }
 
 
