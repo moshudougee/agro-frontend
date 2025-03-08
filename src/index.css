@@ -151,10 +151,18 @@
   }
 
   .cart-summary {
-    @apply flex justify-between w-full p-4;
+    @apply flex justify-between w-full p-6 mx-10;
 
-    & .summary-item {
-      @apply flex justify-center items-center gap-2 w-1/2;
+    & .summary-left {
+      @apply flex justify-center items-center gap-6 w-2/3;
+
+      & .left-item {
+        @apply flex justify-center items-center gap-4;
+      }
+    }
+
+    & .summary-right {
+      @apply flex justify-center items-center gap-5 w-1/3;
     }
   }
 

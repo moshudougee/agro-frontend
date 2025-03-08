@@ -47,7 +47,7 @@ const Cart = () => {
         try {
             setIsLoading(true)
             const paid = false
-            const response = await axios.post('api/orders/create', { totalAmt, orderUnits, paid })
+            const response = await axios.post('api/orders/create', { totalAmt, orderUnits, paid, userId })
             if (response.status === 201) {
                 toast.success('Order sent')
                 setIsError(null)
@@ -70,10 +70,10 @@ const Cart = () => {
             </div>
         )
     }
-    if (error || isError) {
+    if (error) {
         return (
             <div className='loading-spinner'>
-                <span className="text-red-700">{error || isError}</span>
+                <span className="text-red-700">{error}</span>
             </div>
         )
     }
@@ -86,101 +86,108 @@ const Cart = () => {
   return (
     <div className="main-body">
         <CartNav />
-        <div className="body-content">
-            <div className="body-items">
-                <div className="table-container">
-                    <table className="table-main">
-                        <thead className="table-head">
-                            <tr>
-                                <th className="head-cell">Land Size</th>
-                                <th className="head-cell-medium">Seeds</th>
-                                <th className="head-cell-wide">Fertilizer</th>
-                                <th className="head-cell">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody className="table-body">
-                            {count > 0 && orderUnits.length > 0 ?
-                            paginatedUnits.map((unit, index) => {
-                                const seedsPrice = unit.seedsAmt / unit.seedsQty
-                                const fertilizerPrice = unit.fertilizerAmt / unit.fertilizerQty
-                                const unitTotalAmt = unit.seedsAmt + unit.fertilizerAmt
-                            return(
-                                <tr key={index} className="body-row">
-                                    <td className="body-cell">{unit.landSize} Acres</td>
-                                    <td className="body-cell-medium">
-                                        <div className="flex items-center flex-wrap gap-1">
-                                            <span>{unit.seedsName}</span>
-                                            <span>{unit.seedsQty} kgs</span>
-                                            <span>@KSh </span>
-                                            <span>{seedsPrice}</span>
-                                        </div>
-                                    </td>
-                                    <td className="body-cell-wide">
-                                        <div className="flex items-center flex-wrap gap-1">
-                                            <span>{unit.fertilizerName}</span>
-                                            <span>{unit.fertilizerQty} kgs</span>
-                                            <span>@KSh </span>
-                                            <span>{fertilizerPrice}</span>
-                                        </div>
-                                    </td>
-                                    <td className="body-cell">{formatCurrency(unitTotalAmt)}</td>
+        {isError ?
+            <div className="loading-spinner">
+                <span className="text-red-700">{isError}</span>
+            </div>
+        : 
+            <div className="body-content">
+                <div className="body-items">
+                    <div className="table-container">
+                        <table className="table-main">
+                            <thead className="table-head">
+                                <tr>
+                                    <th className="head-cell">Land Size</th>
+                                    <th className="head-cell-medium">Seeds</th>
+                                    <th className="head-cell-wide">Fertilizer</th>
+                                    <th className="head-cell">Total</th>
                                 </tr>
-                            )})
+                            </thead>
+                            <tbody className="table-body">
+                                {count > 0 && orderUnits.length > 0 ?
+                                paginatedUnits.map((unit, index) => {
+                                    const seedsPrice = unit.seedsAmt / unit.seedsQty
+                                    const fertilizerPrice = unit.fertilizerAmt / unit.fertilizerQty
+                                    const unitTotalAmt = unit.seedsAmt + unit.fertilizerAmt
+                                return(
+                                    <tr key={index} className="body-row">
+                                        <td className="body-cell">{unit.landSize} Acres</td>
+                                        <td className="body-cell-medium">
+                                            <div className="flex items-center flex-wrap gap-1">
+                                                <span>{unit.seedsName}</span>
+                                                <span>{unit.seedsQty} kgs</span>
+                                                <span>@KSh </span>
+                                                <span>{seedsPrice}</span>
+                                            </div>
+                                        </td>
+                                        <td className="body-cell-wide">
+                                            <div className="flex items-center flex-wrap gap-1">
+                                                <span>{unit.fertilizerName}</span>
+                                                <span>{unit.fertilizerQty} kgs</span>
+                                                <span>@KSh </span>
+                                                <span>{fertilizerPrice}</span>
+                                            </div>
+                                        </td>
+                                        <td className="body-cell">{formatCurrency(unitTotalAmt)}</td>
+                                    </tr>
+                                )})
+                                :
+                                    <tr className="body-row">
+                                        <td colSpan={4} className="text-center">The cart is empty</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {totalPages > 1 &&
+                    <div className="pagination">
+                        <button
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="pagination-button"
+                        >
+                            Previous
+                        </button>
+                        <span className="font-semibold">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            className="pagination-button"
+                        >
+                            Next
+                        </button>
+                    </div>
+                }
+                <div className="cart-summary">
+                    <div className="summary-left">
+                        {details ? count > 0 &&
+                            <div className="left-item">
+                                <button onClick={handlePaySend} className="button-success">
+                                    Pay and Send
+                                </button>
+                                <button onClick={handlePayLater} className="button-danger">
+                                    Pay Later
+                                </button>
+                            </div>
                             :
-                                <tr className="body-row">
-                                    <td colSpan={4} className="text-center">The cart is empty</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                            <div className="left-item">
+                                <span>Update Contact details</span>
+                                <button onClick={handleContact} className="button-link">
+                                    Add Contact
+                                </button>
+                            </div>
+                        }
+                    </div>
+                    <div className="summary-right">
+                        <span>Order Amount</span>
+                        <span className="font-semibold">{formatCurrency(totalAmt)}</span>
+                    </div>
                 </div>
             </div>
-            {totalPages > 1 &&
-                <div className="pagination">
-                    <button
-                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className="pagination-button"
-                    >
-                        Previous
-                    </button>
-                    <span className="font-semibold">
-                        Page {currentPage} of {totalPages}
-                    </span>
-                    <button
-                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className="pagination-button"
-                    >
-                        Next
-                    </button>
-                </div>
-            }
-            <div className="cart-summary">
-                <div className="summary-item">
-                    {details ? count > 0 &&
-                        <div className="summary-item">
-                            <button onClick={handlePaySend} className="button-success">
-                                Pay and Send
-                            </button>
-                            <button onClick={handlePayLater} className="button-danger">
-                                Pay Later
-                            </button>
-                        </div>
-                        :
-                        <div className="summary-item">
-                            <button onClick={handleContact} className="button-link">
-                                Add Contact
-                            </button>
-                        </div>
-                    }
-                </div>
-                <div className="summary-item">
-                    <span>Order Amount</span>
-                    <span className="font-semibold">{formatCurrency(totalAmt)}</span>
-                </div>
-            </div>
-        </div>
+        }
     </div>
   )
 }
