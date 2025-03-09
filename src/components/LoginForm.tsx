@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useAuthStore } from "../store/auth";
+import { useEffect } from "react";
+import { useAuthMutations, useAuthStore } from "../store/auth";
 import { Link, useNavigate } from "react-router";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { LuLoader, LuLogIn } from "react-icons/lu";
@@ -11,8 +11,8 @@ type Inputs = {
     password: string;
 }
 const LoginForm = () => {
-    const [isLoading, setIsLoading] = useState<boolean>(false)
-    const { login, error, clearError, isAuthenticated, loading } = useAuthStore();
+    const { error, clearError, isAuthenticated, loading } = useAuthStore()
+    const { login, isLoggingIn } = useAuthMutations()
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -35,17 +35,10 @@ const LoginForm = () => {
         message: 'Email is invalid',
     }
 
-    const formSubmit: SubmitHandler<Inputs> = async (form) => {
-        try {
-            setIsLoading(true)
-            const { email, password } = form;
-            await login(email, password);
-            if (!error) navigate("/");
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setIsLoading(false)
-        }
+    const formSubmit: SubmitHandler<Inputs> = (form) => {
+        const { email, password } = form
+        login(email, password);
+        if (!error && isAuthenticated) navigate('/')
     }
 
     useEffect(() => {
@@ -53,7 +46,7 @@ const LoginForm = () => {
     }, [isAuthenticated, navigate])
 
     // Show loading spinner while waiting for user to login
-    if (isLoading || loading) {
+    if (loading) {
         return (
             <div className="flex justify-center items-center w-full h-full">
                 <LuLoader className="animate-spin" size={50} />
@@ -62,7 +55,11 @@ const LoginForm = () => {
     }
   return (
     <div className="form-details">
-        {error && <div className='text-red-700'>{error}</div>}
+        {error && 
+            <div className='text-red-700'>
+                {typeof error === "string" ? error : "An unexpected error occurred."}
+            </div>
+        }
         <div className='form-header'>
             <LuLogIn />
             <span className='font-bold text-2xl'>Login</span>
@@ -75,10 +72,10 @@ const LoginForm = () => {
                     <div className='form-button-item'>
                         <button
                             type='submit'
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isLoggingIn}
                             className='form-button'
                         >
-                            {isSubmitting ? (
+                            {isSubmitting || isLoggingIn ? (
                                 <LuLoader className='animate-spin' />
                             ) : (
                                 <SiTicktick size={20} />

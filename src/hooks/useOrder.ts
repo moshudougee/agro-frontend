@@ -1,34 +1,18 @@
+import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
-import { useCallback, useEffect, useState } from "react"
-
 
 const useOrder = (orderId: string) => {
-    const [order, setOrder] = useState<Order | null>(null)
-    const [loading, setLoading] = useState<boolean>(false)
-    const [error, setError] = useState<string | null>(null)
+    const fetchOrder = async () => {
+        const response = await axios.get(`/api/orders/getOrder/${orderId}`)
+        return response.data
+    }
 
-    const fetchOrder = useCallback(async () => {
-        try {
-            setLoading(true)
-            const response = await axios.get(`/api/orders/getOrder/${orderId}`)
-            setOrder(response.data)
-        } catch (error) {
-            console.log(error)
-            setError('An error occurred while fetching the order')
-        } finally {
-            setLoading(false)
-        }
-    }, [orderId])
+    const { data, isPending, error, refetch } = useQuery({
+        queryKey: ['order', orderId],
+        queryFn: fetchOrder,
+    })
 
-    useEffect(() => {
-        fetchOrder()
-    }, [fetchOrder])
-
-    const mutate = useCallback( async () => {
-        await fetchOrder()
-    }, [fetchOrder])
-
-    return { order, loading, error, mutate }
+    return { order: data, loading: isPending, error, mutate: refetch }
 }
 
 export default useOrder

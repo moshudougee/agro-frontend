@@ -1,35 +1,20 @@
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
 
 
 
 const useSeeds = () => {
-    const [seeds, setSeeds] = useState<Seeds[]>([])
-    const [loading, setLoading] = useState<boolean>(false)
-    const [error, setError] = useState<string | null>(null)
-
-    const fetchSeeds = async () => {
-        try {
-            setLoading(true)
-            const response = await axios.get('/api/seeds/getSeeds')
-            setSeeds(response.data)
-        } catch (error) {
-            console.error(error)
-            setError('An error occurred while fetching seeds')
-        } finally {
-            setLoading(false)
-        }
+    const fetchSeeds = async (): Promise<Seeds[]> => {
+        const response = await axios.get('/api/seeds/getSeeds')
+        return response.data
     }
 
-    useEffect(() => {
-        fetchSeeds()
-    }, [])
-
-    const mutate = useCallback( async () => {
-        await fetchSeeds()
-    }, [])
-
-    return { seeds, loading, error, mutate }
+    const { data, isPending, error, refetch } = useQuery({
+        queryKey: ['seeds'],
+        queryFn: fetchSeeds,
+    })
+    
+    return { seeds: data, loading: isPending, error, mutate: refetch }
 }
 
 export default useSeeds

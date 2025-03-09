@@ -1,6 +1,6 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useAuthStore } from "../store/auth";
-import { useEffect, useState } from "react";
+import { useAuthMutations, useAuthStore } from "../store/auth";
+import { useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { LuCopyPlus, LuLoader } from "react-icons/lu";
 import { FaUserPlus } from "react-icons/fa";
@@ -11,12 +11,12 @@ type Inputs = {
     password: string;
 }
 const RegisterForm = () => {
-    const [isLoading, setIsLoading] = useState<boolean>(false)
-    const { registerUser, error, clearError, isAuthenticated, loading } = useAuthStore();
+    const { error, clearError, isAuthenticated, loading } = useAuthStore()
+    const { registerUser, isRegistering } = useAuthMutations()
     const navigate = useNavigate();
 
     useEffect(() => {
-        clearError(); // clear error on component mount
+        clearError()
     }, [clearError])
 
     const {
@@ -35,25 +35,18 @@ const RegisterForm = () => {
         message: 'Email is invalid',
     }
 
-    const formSubmit: SubmitHandler<Inputs> = async (form) => {
-        try {
-            setIsLoading(true)
-            const { email, password } = form;
-            const role: ROLE = "FARMER";
-            await registerUser(email, password, role);
-            if (!error) navigate("/login");
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setIsLoading(false)
-        }
+    const formSubmit: SubmitHandler<Inputs> = (form) => {
+        const { email, password } = form;
+        const role: ROLE = "FARMER";
+        registerUser(email, password, role);
+        if (!error && isAuthenticated) navigate("/");
     }
 
     useEffect(() => {
         if (isAuthenticated) navigate("/")
     }, [isAuthenticated, navigate])
 
-    if (isLoading || loading) {
+    if (loading) {
         return (
             <div className="loading-spinner">
                 <LuLoader className="animate-spin" size={50} />
@@ -62,7 +55,11 @@ const RegisterForm = () => {
     }
   return (
     <div className="form-details">
-        {error && <div className='text-red-700'>{error}</div>}
+        {error && 
+            <div className='text-red-700'>
+                {typeof error === "string" ? error : "An unexpected error occurred."}
+            </div>
+        }
         <div className='form-header'>
             <FaUserPlus />
             <span className='font-bold text-2xl'>Register</span>
@@ -75,10 +72,10 @@ const RegisterForm = () => {
                     <div className='form-button-item'>
                         <button
                             type='submit'
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isRegistering}
                             className='form-button'
                         >
-                            {isSubmitting ? (
+                            {isSubmitting || isRegistering ? (
                                 <LuLoader className='animate-spin' />
                             ) : (
                                 <LuCopyPlus size={20} />
