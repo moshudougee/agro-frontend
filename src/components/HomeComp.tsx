@@ -110,7 +110,7 @@ export const HomeComp = () => {
         <HomeCompNav />
         <div className="body-content">
           <div className="form-details">
-            {error && <div className='text-red-700'>{error}</div>}
+            {error && <div className='text-red-700'>{error.message}</div>}
             <div className="form-header">
               <LuCopyPlus />
               <span className='font-bold text-2xl'>Select Farm Inputs</span>
@@ -120,7 +120,7 @@ export const HomeComp = () => {
                 <FormInput<Inputs> id='landSize' name="Landsize (Acres)" required 
                   register={register} errors={errors} type="number" step={step}
                 />
-                <FormSelect<Inputs> id='seedsID' name="Select Seeds" items={seeds} required register={register} errors={errors} />
+                <FormSelect<Inputs> id='seedsID' name="Select Seeds" items={seeds!} required register={register} errors={errors} />
                 {fertilizers && fertilizers.length > 0 &&
                   <FormSelect<Inputs> id='fertilizerID' name="Select Fertilizer" items={fertilizers} 
                     required register={register} errors={errors} 

@@ -7,7 +7,7 @@ const useDetails = () => {
     const { user } = useAuthStore()
     const userId = user!.id
 
-    const fetchDetails = async (): Promise<FarmerDetails[]> => {
+    const fetchDetails = async (): Promise<FarmerDetails> => {
         const res = await axios.get(`/api/details/getDetails/${userId}`)
         return res.data
     }

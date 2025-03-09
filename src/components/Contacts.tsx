@@ -15,7 +15,7 @@ const Contacts = () => {
     if (error) {
         return (
             <div className='loading-spinner'>
-                <span className="text-red-700">{error}</span>
+                <span className="text-red-700">{error.message}</span>
             </div>
         )
     }
