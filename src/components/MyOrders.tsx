@@ -4,18 +4,48 @@ import { formatCurrency, ITEMS_PER_PAGE } from "../utils/utils"
 import useMyOrders from "../hooks/useMyOrders"
 import { useState } from "react"
 import { useNavigate } from "react-router"
+import Swal from 'sweetalert2'
+import axios from "axios"
+import toast from "react-hot-toast"
 
 const sortOrdersByStatus = (orders: Order[]) => {
     return [...orders].sort((a, b) => a.status.localeCompare(b.status))
 }
 
 const MyOrders = () => {
-    const { orders, loading, error } = useMyOrders()
+    const { orders, loading, error, mutate } = useMyOrders()
     const [currentPage, setCurrentPage] = useState(1)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
     const navigate = useNavigate()
 
     const handleView = (orderId: string) => {
         navigate(`/orders/${orderId}`)
+    }
+
+    const handleDelete = (orderId: string) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `Do you want to delete order`,
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'Yes, Delete!',
+            confirmButtonColor: '#d55',
+            reverseButtons: true,
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                setIsLoading(true)
+                const res = await axios.delete(`/api/orders/deleteOrder/${orderId}`)
+                if (res.status === 200) {
+                    mutate()
+                    toast.success('Order deleted')
+                }
+            }
+        }).catch(error => {
+            console.log(error)
+            toast.error('Not Deleted')
+        }).finally(() => {
+            setIsLoading(false)
+        })
     }
 
     if (loading) {
@@ -77,9 +107,15 @@ const MyOrders = () => {
                                                 </span>
                                             </td>
                                             <td className="head-cell">
-                                                <button className="button-link" onClick={() => handleView(order.id)}>
-                                                    View
-                                                </button>
+                                                <div className="flex justify-between items-center w-full px-0.5">
+                                                    <button className="button-link" onClick={() => handleView(order.id)}>
+                                                        View
+                                                    </button>
+                                                    <button className="button-danger" onClick={() => handleDelete(order.id)}>
+                                                        {isLoading && <LuLoader className="animate-spin" size={16} />}
+                                                        Delete
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     )

@@ -6,6 +6,7 @@ import { useState } from "react"
 import axios from "axios"
 import toast from "react-hot-toast"
 import { useNavigate } from "react-router"
+import Swal from 'sweetalert2'
 
 const sortOrdersByStatus = (orders: Order[]) => {
     return [...orders].sort((a, b) => a.status.localeCompare(b.status))
@@ -35,6 +36,32 @@ const Orders = () => {
 
     const handleView = (orderId: string) => {
         navigate(`/dashboard/orders/${orderId}`)
+    }
+
+    const handleDelete = (orderId: string) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `Do you want to delete order`,
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'Yes, Delete!',
+            confirmButtonColor: '#d55',
+            reverseButtons: true,
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                setIsLoading(true)
+                const res = await axios.delete(`/api/orders/deleteOrder/${orderId}`)
+                if (res.status === 200) {
+                    mutate()
+                    toast.success('Order deleted')
+                }
+            }
+        }).catch(error => {
+            console.log(error)
+            toast.error('Not Deleted')
+        }).finally(() => {
+            setIsLoading(false)
+        })
     }
 
     if (loading) {
@@ -99,23 +126,27 @@ const Orders = () => {
                                           </span>
                                         </td>
                                         <td className="body-cell">
-                                          <div className="flex justify-center items-center">
+                                          <div className="flex justify-center items-center gap-1 w-full px-0.5">
                                             {order.status === 'PENDING' &&
                                               order.paid ?
-                                                <button className="button-success"
+                                                <button className="button-success w-1/2"
                                                   onClick={() => handleAction("APPROVED", order.id)}
                                                 >
                                                   {isLoading && <LuLoader className="animate-spin" size={16} />}
                                                   Approve
                                                 </button>
                                                 : order.status === 'PENDING' && !order.paid ?
-                                                <button className="button-danger" onClick={() => handleAction("REJECTED", order.id)}>
+                                                <button className="button-danger w-1/2" onClick={() => handleAction("REJECTED", order.id)}>
                                                   {isLoading && <LuLoader className="animate-spin" size={16} />}
                                                   Reject
                                                 </button>
                                                 :
-                                                <span>No action</span>
+                                                <span className="text-center w-1/2">No Action</span>
                                             }
+                                            <button className="button-danger w-1/2" onClick={() => handleDelete(order.id)}>
+                                                {isLoading && <LuLoader className="animate-spin" size={16} />}
+                                                Delete
+                                            </button>
                                           </div>
                                         </td>
                                     </tr>
