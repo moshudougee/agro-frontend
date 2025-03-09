@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 
 const useFertilizers = () => {
-    const fetchFertilizers = async () => {
+    const fetchFertilizers = async (): Promise<Fertilizer[]> => {
         const res = await axios.get('/api/fertilizers/getFertilizers')
         return res.data
     }

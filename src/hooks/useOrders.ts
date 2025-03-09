@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 
 const useOrders = () => {
-    const fetchMyOrders = async () => {
+    const fetchMyOrders = async (): Promise<Order[]> => {
          const response = await axios.get('/api/orders/getAllOrders')
          return response.data
     }

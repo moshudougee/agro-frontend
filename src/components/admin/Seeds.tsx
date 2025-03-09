@@ -19,7 +19,7 @@ const Seeds = () => {
     if (error) {
       return (
         <div className='loading-spinner'>
-          <span className="text-red-700">{error}</span>
+          <span className="text-red-700">{error.message}</span>
         </div>
       )
     }
@@ -27,7 +27,7 @@ const Seeds = () => {
      // Pagination logic
      const totalPages = Math.ceil((seeds?.length || 0) / ITEMS_PER_PAGE)
      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-     const paginatedSeeds = seeds.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+     const paginatedSeeds = seeds?.slice(startIndex, startIndex + ITEMS_PER_PAGE) || []
 
   return (
     <div className="main-body">

@@ -69,7 +69,7 @@ const AddSeeds = () => {
       <SeedsNav />
       <div className="body-content">
         <div className="form-details">
-          {error || fertError && <div className='text-red-700'>{error || fertError}</div>}
+          {error || fertError && <div className='text-red-700'>{error || fertError.message}</div>}
           <div className="form-header">
             <LuCopyPlus />
             <span className='font-bold text-2xl'>New Seeds</span>

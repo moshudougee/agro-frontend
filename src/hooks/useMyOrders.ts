@@ -7,7 +7,7 @@ const useMyOrders = () => {
     const { user } = useAuthStore()
     const userId = user!.id
 
-    const fetchMyOrders = async () => {
+    const fetchMyOrders = async (): Promise<Order[]> => {
         const response = await axios.get(`/api/orders/getMyOrders/${userId}`)
         return response.data
     }
