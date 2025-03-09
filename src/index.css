@@ -85,6 +85,14 @@
           @apply px-4 py-2 bg-gray-300 rounded disabled:opacity-50;
         }
       }
+
+      & .famer-details {
+        @apply flex justify-center items-center gap-3 p-2 w-full;
+
+        & .details-item {
+          @apply flex justify-center items-center gap-4 w-1/5;
+        }
+      }
     }
   }
 

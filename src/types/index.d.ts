@@ -2,6 +2,16 @@ declare type ROLE = 'ADMIN' | 'FARMER';
 
 declare type OrderStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
+declare type User = {
+    id: string;
+    role: ROLE;
+    email: string;
+    password?: string;
+    details?: FarmerDetails;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+
 declare type Order = {
     id: string;
     farmerID: string;
@@ -9,6 +19,7 @@ declare type Order = {
     totalAmt: number;
     paid: boolean;
     status: OrderStatus;
+    farmer?: User;
     createdAt?: Date;
     updatedAt?: Date;
 }

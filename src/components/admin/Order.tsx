@@ -4,12 +4,37 @@ import OrdersNav from "./OrdersNav"
 import { useEffect, useState } from "react"
 import { LuLoader } from "react-icons/lu"
 import { formatCurrency, ITEMS_PER_PAGE } from "../../utils/utils"
+import axios from "axios"
 
 const Order = () => {
     const { orderId } = useParams()
     const { order, loading, error } = useOrder(orderId!)
     const [currentPage, setCurrentPage] = useState(1)
     const [orderUnits, setOrderUnits] = useState<OrderUnit[]>([])
+    const [details, setDetails] = useState<FarmerDetails | null>(null)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isError, setIsError] = useState<string | null>(null)
+
+    const farmerID = order?.farmer?.id
+
+    useEffect(() => {
+        const fetchDetails = async () => {
+            try {
+                setIsLoading(true)
+                const response = await axios.get(`/api/details/getDetails/${farmerID}`)
+                setDetails(response.data)
+            } catch (error) {
+                console.log(error)
+                setIsError('Error occured while fetching farmer details')
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        if (farmerID) {
+            fetchDetails()
+        } 
+    }, [farmerID])
 
     useEffect(() => {
         if (order) {
@@ -110,6 +135,38 @@ const Order = () => {
                         Next
                     </button>
                 </div>
+            }
+            {isLoading ? 
+                <div className="loading-spinner">
+                    <LuLoader className="animate-spin" size={50} />
+                </div>
+            :isError ?
+                <div className='loading-spinner'>
+                    <span className="text-red-700">{isError}</span>
+                </div>
+            :
+            <div className="famer-details">
+                <div className="details-item">
+                    <span className="font-semibold">Name:</span>
+                    <span>{details?.name}</span>
+                </div>
+                <div className="details-item">
+                    <span className="font-semibold">Phone:</span>
+                    <span>{details?.phone}</span>
+                </div>
+                <div className="details-item">
+                    <span className="font-semibold">Email:</span>
+                    <span>{order?.farmer?.email}</span>
+                </div>
+                <div className="details-item">
+                    <span className="font-semibold">Paid:</span>
+                    <span>{order?.paid ? 'Yes' : 'No'}</span>
+                </div>
+                <div className="details-item">
+                    <span className="font-semibold">Status:</span>
+                    <span className="capitalize">{order?.status.toLocaleLowerCase()}</span>
+                </div>
+            </div>
             }
         </div>
     </div>
