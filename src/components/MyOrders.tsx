@@ -5,7 +5,9 @@ import useMyOrders from "../hooks/useMyOrders"
 import { useState } from "react"
 import { useNavigate } from "react-router"
 
-
+const sortOrdersByStatus = (orders: Order[]) => {
+    return [...orders].sort((a, b) => a.status.localeCompare(b.status))
+}
 
 const MyOrders = () => {
     const { orders, loading, error } = useMyOrders()
@@ -31,10 +33,13 @@ const MyOrders = () => {
         )
     }
 
+    // Sort orders by status
+    const sortedOrders = sortOrdersByStatus(orders || [])
+
     // Pagination logic
-    const totalPages = Math.ceil((orders?.length || 0) / ITEMS_PER_PAGE)
+    const totalPages = Math.ceil((sortedOrders.length || 0) / ITEMS_PER_PAGE)
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    const paginatedOrders = orders.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+    const paginatedOrders = sortedOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
   return (
     <div className="main-body">

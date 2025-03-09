@@ -7,6 +7,10 @@ import axios from "axios"
 import toast from "react-hot-toast"
 import { useNavigate } from "react-router"
 
+const sortOrdersByStatus = (orders: Order[]) => {
+    return [...orders].sort((a, b) => a.status.localeCompare(b.status))
+}
+
 const Orders = () => {
     const { orders, loading, error, mutate } = useOrders()
     const [currentPage, setCurrentPage] = useState(1)
@@ -48,10 +52,13 @@ const Orders = () => {
         )
     }
 
+    // Sort orders by status
+    const sortedOrders = sortOrdersByStatus(orders || [])
+
     // Pagination logic
-    const totalPages = Math.ceil((orders?.length || 0) / ITEMS_PER_PAGE)
+    const totalPages = Math.ceil((sortedOrders.length || 0) / ITEMS_PER_PAGE)
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-    const paginatedOrders = orders.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+    const paginatedOrders = sortedOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
   return (
     <div className="main-body">
