@@ -15,6 +15,8 @@ import CartPage from "./pages/CartPage"
 import MyOrdersPage from "./pages/MyOrdersPage"
 import OrderPage from "./pages/admin/OrderPage"
 import MyOrderPage from "./pages/MyOrderPage"
+import EditFertPage from "./pages/admin/EditFertPage"
+import EditSeedsPage from "./pages/admin/EditSeedsPage"
 
 
 const App = () => {
@@ -37,8 +39,10 @@ const App = () => {
           <Route index element={<OrdersPage />} />
           <Route path="/dashboard/fertilizers" element={<FertlizersPage />} />
           <Route path="/dashboard/fertilizers/add" element={<AddFertPage />} />
+          <Route path="/dashboard/fertilizers/edit/:fertilizerId" element={<EditFertPage />} />
           <Route path="/dashboard/seeds" element={<SeedsPage />} />
           <Route path="/dashboard/seeds/add" element={<AddSeedsPage />} />
+          <Route path="/dashboard/seeds/edit/:seedsId" element={<EditSeedsPage />} />
           <Route path="/dashboard/orders" element={<OrdersPage />} />
           <Route path="/dashboard/orders/:orderId" element={<OrderPage />} />
         </Route>

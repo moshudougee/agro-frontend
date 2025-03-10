@@ -1,39 +1,49 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FertilizersNav from "./FertilizersNav"
 import { SubmitHandler, useForm } from "react-hook-form";
 import axios from "axios";
-import { useNavigate } from "react-router";
-import { LuCopyPlus, LuLoader } from "react-icons/lu";
+import { useNavigate, useParams } from "react-router";
+import { LuFilePen, LuLoader } from "react-icons/lu";
 import FormInput from "../FormInput";
+import useFertilizer from "../../hooks/useFertilizer";
 
 type Inputs = {
     name: string;
     price: number;
 }
-
-const AddFertilizer = () => {
+const EditFertilizer = () => {
+    const { fertilizerId } = useParams()
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [error, setError] = useState<string | null>(null)
+    const { fertilizer, loading, error: fertError } = useFertilizer(fertilizerId!)
     const navigate = useNavigate()
     const step = 0.01
 
     const { 
         register,
         handleSubmit,
+        setValue,
         formState: { errors, isSubmitting },
      } = useForm<Inputs>({
         defaultValues: {
-            name: '',
-            price: 0
+            name: fertilizer?.name || '',
+            price: fertilizer?.price || 0
         }
     })
+
+    useEffect(() => {
+        if (fertilizer) {
+            setValue('name', fertilizer.name)
+            setValue('price', fertilizer.price)
+        }
+    }, [fertilizer, setValue])
 
     const formSubmit: SubmitHandler<Inputs> = async (form) => {
         try {
             setIsLoading(true)
             const { name, price } = form
-            const response = await axios.post('/api/fertilizers/create', { name, price })
-            if (response.status === 201) {
+            const response = await axios.put(`/api/fertilizers/updateFertilizer/${fertilizerId}`, { name, price })
+            if (response.status === 200) {
                 setError(null)
                 navigate('/dashboard/fertilizers')
             }
@@ -45,7 +55,20 @@ const AddFertilizer = () => {
         }
     }
 
-
+    if (loading) {
+        return (
+            <div className="loading-spinner">
+                <LuLoader className="animate-spin" size={50} />
+            </div>
+        )
+    }
+    if (fertError) {
+        return (
+            <div className='loading-spinner'>
+                <span className="text-red-700">{fertError.message}</span>
+            </div>
+        )
+    }
   return (
     <div className="main-body">
         <FertilizersNav />
@@ -53,8 +76,8 @@ const AddFertilizer = () => {
             <div className="form-details">
                 {error && <div className='text-red-700'>{error}</div>}
                 <div className="form-header">
-                    <LuCopyPlus />
-                    <span className='font-bold text-2xl'>New Fertilizer</span>
+                    <LuFilePen />
+                    <span className='font-bold text-2xl'>Edit Fertilizer</span>
                 </div>
                 <div className="form-container">
                     <form onSubmit={handleSubmit(formSubmit)} className="form">
@@ -75,13 +98,13 @@ const AddFertilizer = () => {
                                     disabled={isSubmitting || isLoading}
                                     className='form-button'
                                 >
-                                    {isSubmitting || isLoading ? (
+                                    {isSubmitting ? (
                                         <LuLoader className='animate-spin' />
                                     ) : (
-                                        <LuCopyPlus size={20} />
+                                        <LuFilePen size={20} />
                                     )}
                                     
-                                    <span className='text-button'>Add</span>
+                                    <span className='text-button'>Edit</span>
                                 </button>
                             </div>
                         </div>
@@ -93,4 +116,4 @@ const AddFertilizer = () => {
   )
 }
 
-export default AddFertilizer
+export default EditFertilizer

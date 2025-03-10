@@ -3,10 +3,16 @@ import useFertilizers from "../../hooks/useFertilizers"
 import FertilizersNav from "./FertilizersNav"
 import { useState } from "react"
 import { ITEMS_PER_PAGE } from "../../utils/utils"
+import { useNavigate } from "react-router"
 
 const Fertlizers = () => {
     const { fertilizers, loading, error } = useFertilizers()
     const [currentPage, setCurrentPage] = useState(1)
+    const navigate = useNavigate()
+
+    const handleEdit = (fertilizerId: string) => {
+        navigate(`/dashboard/fertilizers/edit/${fertilizerId}`)
+    }
 
     if (loading) {
         return (
@@ -63,7 +69,11 @@ const Fertlizers = () => {
                                                 ))}
                                             </div>
                                         </td>
-                                        <td className="body-cell"><button>Edit</button> | <button>Delete</button></td>
+                                        <td className="body-cell">
+                                            <button className="button-success" onClick={() => handleEdit(fertilizer.id)}>
+                                                Edit
+                                            </button>
+                                        </td>
                                     </tr>
                                 )
                             }) :

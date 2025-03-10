@@ -3,10 +3,16 @@ import useSeeds from "../../hooks/useSeeds"
 import SeedsNav from "./SeedsNav"
 import { LuLoader } from "react-icons/lu"
 import { ITEMS_PER_PAGE } from "../../utils/utils"
+import { useNavigate } from "react-router"
 
 const Seeds = () => {
     const { seeds, loading, error } = useSeeds()
     const [currentPage, setCurrentPage] = useState(1)
+    const navigate = useNavigate()
+
+    const handleEdit = (seedsId: string) => {
+      navigate(`/dashboard/seeds/edit/${seedsId}`)
+    }
 
     if (loading) {
       return (
@@ -64,7 +70,11 @@ const Seeds = () => {
                                 })}
                               </div>
                             </td>
-                            <td className="body-cell"><button>Edit</button> | <button>Delete</button></td>
+                            <td className="body-cell">
+                              <button className="button-success" onClick={() => handleEdit(seed.id)}>
+                                Edit
+                              </button>
+                            </td>
                           </tr>
                         )
                       })

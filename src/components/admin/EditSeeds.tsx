@@ -1,20 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SeedsNav from "./SeedsNav"
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { SubmitHandler, useForm } from "react-hook-form";
 import useFertilizers from "../../hooks/useFertilizers";
 import axios from "axios";
-import { LuCopyPlus, LuLoader } from "react-icons/lu";
+import { LuFilePen, LuLoader } from "react-icons/lu";
 import FormInput from "../FormInput";
 import Select from "react-select";
+import useSeed from "../../hooks/useSeed";
 
 type Inputs = {
   name: string;
   price: number;
 }
-const AddSeeds = () => {
+const EditSeeds = () => {
+    const { seedsId } = useParams()
     const { fertilizers, loading, error: fertError } = useFertilizers()
+    const { seed, loading: seedLoading, error: seedError } = useSeed(seedsId!)
     const [fertilizerIds, setFertilizerIds] = useState<string[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [error, setError] = useState<string | null>(null)
@@ -24,20 +27,35 @@ const AddSeeds = () => {
     const { 
         register,
         handleSubmit,
+        setValue,
         formState: { errors, isSubmitting },
     } = useForm<Inputs>({
         defaultValues: {
-            name: '',
-            price: 0
+            name: seed?.name || '',
+            price: seed?.price || 0
         }
     })
+
+    useEffect(() => {
+        if (seed) {
+            setValue('name', seed.name)
+            setValue('price', seed.price)
+            if (seed.fertilizers) {
+                const savedIds = []
+                for (const fert of seed.fertilizers) {
+                    savedIds.push(fert.id)
+                }
+                setFertilizerIds(savedIds)
+            }
+        }
+    }, [seed,setValue])
 
     const formSubmit: SubmitHandler<Inputs> = async (form) => {
       try {
           setIsLoading(true)
           const { name, price } = form
-          const response = await axios.post('/api/seeds/create', { name, price, fertilizerIds })
-          if (response.status === 201) {
+          const response = await axios.put(`/api/seeds/updateSeed/${seedsId}`, { name, price, fertilizerIds })
+          if (response.status === 200) {
               setError(null)
               navigate('/dashboard/seeds')
           }
@@ -54,16 +72,20 @@ const AddSeeds = () => {
       setFertilizerIds(selectedIds);
     };
 
-    if (loading) {
+    if (loading || seedLoading) {
         return (
           <div className="loading-spinner">
               <LuLoader className="animate-spin" size={50} />
           </div>
         )
     }
-
-    //console.log(fertilizerIds)
-
+    if (seedError) {
+        return (
+            <div className='loading-spinner'>
+                <span className="text-red-700">{seedError.message}</span>
+            </div>
+        )
+    }
   return (
     <div className="main-body">
       <SeedsNav />
@@ -71,8 +93,8 @@ const AddSeeds = () => {
         <div className="form-details">
           {error || fertError && <div className='text-red-700'>{error || fertError.message}</div>}
           <div className="form-header">
-            <LuCopyPlus />
-            <span className='font-bold text-2xl'>New Seeds</span>
+            <LuFilePen />
+            <span className='font-bold text-2xl'>Edit Seeds</span>
           </div>
           <div className="form-container">
             <form onSubmit={handleSubmit(formSubmit)} className="form">
@@ -86,6 +108,7 @@ const AddSeeds = () => {
                   <div className="flex w-full md:w-4/5">
                     <Select 
                       isMulti
+                      defaultValue={seed?.fertilizers?.map(fert => ({ value: fert.id, label: fert.name }))}
                       options={fertilizers?.map(fert => ({ value: fert.id, label: fert.name }))}
                       onChange={handleMultiChange}
                       className="w-full"
@@ -103,9 +126,9 @@ const AddSeeds = () => {
                     {isSubmitting || isLoading ? (
                         <LuLoader className='animate-spin' />
                     ) : (
-                        <LuCopyPlus size={20} />
+                        <LuFilePen size={20} />
                     )}
-                    <span className='text-button'>Add</span>
+                    <span className='text-button'>Edit</span>
                   </button>
                 </div>
               </div>
@@ -117,4 +140,4 @@ const AddSeeds = () => {
   )
 }
 
-export default AddSeeds
+export default EditSeeds
