@@ -8,10 +8,11 @@ import { useNavigate } from "react-router"
 import axios from "axios"
 import toast from "react-hot-toast"
 import { useAuthStore } from "../store/auth"
+import { RiDeleteBin6Fill } from "react-icons/ri";
 
 const Cart = () => {
     const { user } = useAuthStore()
-    const { totalAmt, orderUnits, count, clearOrder } = useOrderStore()
+    const { totalAmt, orderUnits, count, clearOrder, removeOrderUnit } = useOrderStore()
     const { details, loading, error } = useDetails()
     const [currentPage, setCurrentPage] = useState(1)
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -21,6 +22,10 @@ const Cart = () => {
 
     const handleContact = () => {
         navigate('/contacts/edit')
+    }
+
+    const handleRemove = (index: number) => {
+        removeOrderUnit(index)
     }
 
     const handlePaySend = async () => {
@@ -61,21 +66,6 @@ const Cart = () => {
         } finally {
             setIsLoading(false)
         }
-    }
-
-    if (loading || isLoading) {
-        return (
-            <div className="loading-spinner">
-                <LuLoader className="animate-spin" size={50} />
-            </div>
-        )
-    }
-    if (error) {
-        return (
-            <div className='loading-spinner'>
-                <span className="text-red-700">{error.message}</span>
-            </div>
-        )
     }
 
     // Pagination logic
@@ -128,7 +118,17 @@ const Cart = () => {
                                                 <span>{fertilizerPrice}</span>
                                             </div>
                                         </td>
-                                        <td className="body-cell">{formatCurrency(unitTotalAmt)}</td>
+                                        <td className="body-cell">
+                                            <div className="flex justify-center items-center w-full">
+                                                <span className="w-3/4">{formatCurrency(unitTotalAmt)}</span>
+                                                <button 
+                                                    className="flex w-1/4 justify-end items-center text-red-800 cursor-pointer"
+                                                    onClick={() => handleRemove(index)}
+                                                >
+                                                    <RiDeleteBin6Fill />
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 )})
                                 :
@@ -162,25 +162,37 @@ const Cart = () => {
                     </div>
                 }
                 <div className="cart-summary">
-                    <div className="summary-left">
-                        {details ? count > 0 &&
-                            <div className="left-item">
-                                <button onClick={handlePaySend} className="button-success">
-                                    Pay and Send
-                                </button>
-                                <button onClick={handlePayLater} className="button-danger">
-                                    Pay Later
-                                </button>
-                            </div>
-                            :
-                            <div className="left-item">
-                                <span>Update Contact details</span>
-                                <button onClick={handleContact} className="button-link">
-                                    Add Contact
-                                </button>
-                            </div>
-                        }
-                    </div>
+                    {loading ?
+                        <div className="loading-spinner">
+                            <LuLoader className="animate-spin" size={50} />
+                        </div>
+                    :error ?
+                        <div className="loading-spinner">
+                            <span className="text-red-700">{error.message}</span>
+                        </div>
+                    :
+                        <div className="summary-left">
+                            {details ? count > 0 &&
+                                <div className="left-item">
+                                    <button onClick={handlePaySend} className="button-success">
+                                        {isLoading && <LuLoader className="animate-spin" size={16} />}
+                                        Pay and Send
+                                    </button>
+                                    <button onClick={handlePayLater} className="button-danger">
+                                        {isLoading && <LuLoader className="animate-spin" size={16} />}
+                                        Pay Later
+                                    </button>
+                                </div>
+                                :
+                                <div className="left-item">
+                                    <span>Update Contact details</span>
+                                    <button onClick={handleContact} className="button-link">
+                                        Add Contact
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    }
                     <div className="summary-right">
                         <span>Order Amount</span>
                         <span className="font-semibold">{formatCurrency(totalAmt)}</span>
