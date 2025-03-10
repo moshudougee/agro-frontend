@@ -174,11 +174,11 @@ const Cart = () => {
                         <div className="summary-left">
                             {details ? count > 0 &&
                                 <div className="left-item">
-                                    <button onClick={handlePaySend} className="button-success">
+                                    <button onClick={handlePaySend} className="button-success" disabled={isLoading}>
                                         {isLoading && <LuLoader className="animate-spin" size={16} />}
                                         Pay and Send
                                     </button>
-                                    <button onClick={handlePayLater} className="button-danger">
+                                    <button onClick={handlePayLater} className="button-danger" disabled={isLoading}>
                                         {isLoading && <LuLoader className="animate-spin" size={16} />}
                                         Pay Later
                                     </button>

@@ -129,21 +129,31 @@ const Orders = () => {
                                           <div className="flex justify-center items-center gap-1 w-full px-0.5">
                                             {order.status === 'PENDING' &&
                                               order.paid ?
-                                                <button className="button-success w-1/2"
-                                                  onClick={() => handleAction("APPROVED", order.id)}
+                                                <button 
+                                                    className="button-success w-1/2"
+                                                    onClick={() => handleAction("APPROVED", order.id)}
+                                                    disabled={isLoading}
                                                 >
                                                   {isLoading && <LuLoader className="animate-spin" size={16} />}
                                                   Approve
                                                 </button>
                                                 : order.status === 'PENDING' && !order.paid ?
-                                                <button className="button-danger w-1/2" onClick={() => handleAction("REJECTED", order.id)}>
+                                                <button 
+                                                    className="button-danger w-1/2" 
+                                                    onClick={() => handleAction("REJECTED", order.id)}
+                                                    disabled={isLoading}
+                                                >
                                                   {isLoading && <LuLoader className="animate-spin" size={16} />}
                                                   Reject
                                                 </button>
                                                 :
                                                 <span className="text-center w-1/2">No Action</span>
                                             }
-                                            <button className="button-danger w-1/2" onClick={() => handleDelete(order.id)}>
+                                            <button 
+                                                className="button-danger w-1/2" 
+                                                onClick={() => handleDelete(order.id)}
+                                                disabled={isLoading}
+                                            >
                                                 {isLoading && <LuLoader className="animate-spin" size={16} />}
                                                 Delete
                                             </button>
